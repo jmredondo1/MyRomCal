@@ -1,0 +1,14 @@
+{
+  "name": "romcal-html-web-page-example",
+  "scripts": {
+    "start": "http-server ./"
+  },
+  "dependencies": {
+    "@romcal/calendar.france": "^3.0.0-dev.6",
+    "@romcal/calendar.general-roman": "^3.0.0-dev.6",
+    "@romcal/calendar.spain": "^3.0.0-dev.6",
+    "http-server": "^14.0.0",
+    "romcal": "^3.0.0-dev.6"
+  },
+  "license": "MIT"
+}

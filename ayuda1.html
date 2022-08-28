@@ -1,0 +1,324 @@
+<html><head><style>body {
+   color: black;
+}
+</style></head><body><p><strong>:warning: The documentation above is written for romcal v2, and has not been updated yet to romcal v3.</strong></p>
+<h1 id="output-data-and-json-schema">Output data and JSON schema</h1>
+<ul>
+<li><a href="#json-structure">JSON Structure</a></li>
+<li><a href="#liturgical-day-ranks">Liturgical Day Ranks</a></li>
+<li><a href="#celebration-titles">Celebration Titles</a></li>
+<li><a href="#liturgical-seasons">Liturgical Seasons</a></li>
+<li><a href="#liturgical-periods">Liturgical Periods</a></li>
+<li><a href="#cycles">Liturgical Cycles: Years and Weeks</a><ul>
+<li><a href="#liturgical-day-cycle">Liturgical Day Cycle</a></li>
+<li><a href="#sunday-cycle">Sunday Cycle</a></li>
+<li><a href="#weekday-cycle">Weekday Cycle</a></li>
+<li><a href="#psalter-weeks">Psalter Weeks</a></li>
+</ul>
+</li>
+<li><a href="#liturgical-colors">Liturgical Colors</a></li>
+<li><a href="#calendar-sources-deprecated">Calendar Sources [deprecated]</a></li>
+</ul>
+<h2 id="json-structure">JSON Structure</h2>
+<p>romcal returns an array of liturgical date objects in the following structure</p>
+<pre><code class="lang-json5">[
+  {
+<span class="hljs-attr">    key:</span> <span class="hljs-string">'mary_mother_of_god'</span>,
+<span class="hljs-attr">    name:</span> <span class="hljs-string">'Mary, Mother of God'</span>,
+<span class="hljs-attr">    date:</span> <span class="hljs-string">'2020-01-01T00:00:00.000Z'</span>,
+<span class="hljs-attr">    rank:</span> <span class="hljs-string">'SOLEMNITY'</span>,
+<span class="hljs-attr">    rankName:</span> <span class="hljs-string">'Solemnity'</span>,
+<span class="hljs-attr">    isHolyDayOfObligation:</span> <span class="hljs-literal">true</span>,
+<span class="hljs-attr">    allowSimilarRankItems:</span> <span class="hljs-literal">false</span>,
+<span class="hljs-attr">    prioritized:</span> <span class="hljs-literal">false</span>,
+<span class="hljs-attr">    liturgicalColors:</span> [<span class="hljs-string">'WHITE'</span>],
+<span class="hljs-attr">    seasons:</span> [<span class="hljs-string">'CHRISTMASTIDE'</span>],
+<span class="hljs-attr">    seasonNames:</span> [<span class="hljs-string">'Christmas'</span>],
+<span class="hljs-attr">    periods:</span> [<span class="hljs-string">'CHRISTMAS_OCTAVE'</span>],
+<span class="hljs-attr">    cycles:</span> {
+<span class="hljs-attr">      sundayCycle:</span> <span class="hljs-string">'YEAR_A'</span>,
+<span class="hljs-attr">      weekdayCycle:</span> <span class="hljs-string">'YEAR_2'</span>,
+<span class="hljs-attr">      psalterWeek:</span> <span class="hljs-string">'WEEK_2'</span>,
+    },
+<span class="hljs-attr">    calendar:</span> {
+<span class="hljs-attr">      totalWeeksInGregorianYear:</span> <span class="hljs-number">53</span>,
+<span class="hljs-attr">      totalWeeksInLiturgicalYear:</span> <span class="hljs-number">52</span>,
+<span class="hljs-attr">      weekOfGregorianYear:</span> <span class="hljs-number">1</span>,
+<span class="hljs-attr">      weekOfLiturgicalYear:</span> <span class="hljs-number">5</span>,
+<span class="hljs-attr">      weekOfSeason:</span> <span class="hljs-number">2</span>,
+<span class="hljs-attr">      dayOfGregorianYear:</span> <span class="hljs-number">1</span>,
+<span class="hljs-attr">      dayOfLiturgicalYear:</span> <span class="hljs-number">32</span>,
+<span class="hljs-attr">      dayOfSeason:</span> <span class="hljs-number">8</span>,
+<span class="hljs-attr">      dayOfWeek:</span> <span class="hljs-number">3</span>,
+<span class="hljs-attr">      dayOfWeekCountInMonth:</span> <span class="hljs-number">1</span>,
+<span class="hljs-attr">      startOfLiturgicalYear:</span> <span class="hljs-string">'2019-12-01T00:00:00.000Z'</span>,
+<span class="hljs-attr">      endOfLiturgicalYear:</span> <span class="hljs-string">'2020-11-28T00:00:00.000Z'</span>,
+<span class="hljs-attr">      easter:</span> <span class="hljs-string">'2020-04-12T00:00:00.000Z'</span>,
+    },
+<span class="hljs-attr">    fromCalendar:</span> <span class="hljs-string">'general'</span>,
+<span class="hljs-attr">    fromExtendedCalendars:</span> [],
+<span class="hljs-attr">    metadata:</span> {
+<span class="hljs-attr">      titles:</span> [],
+    },
+  },
+  // ...
+]
+</code></pre>
+<ul>
+<li><code>key</code>: A camel case string which serves as a unique identifier for the liturgical day.</li>
+<li><code>name</code>: The <a href="localization.md">localizable name</a> of the liturgical day</li>
+<li><code>date</code>: Date of the liturgical day as a ISO8601 string</li>
+<li><code>rank</code>: A key representing the <a href="#liturgical-day-ranks">liturgical day rank</a></li>
+<li><code>allowSimilarRankItems</code>: In addition to this liturgical day, allow similar items that have the same rank, and the same or lower precedence, so the current liturgical day will not overwrite another defined item.</li>
+<li><code>isHolyDayOfObligation</code>: If the current liturgical day is a <a href="https://en.wikipedia.org/wiki/Holy_day_of_obligation">Holy Day of Obligation</a>. Holy days of obligation are days on which the faithful are expected to attend Mass, and engage in rest from work and recreation.</li>
+<li><code>prioritized</code>: A optional boolean that when true, gives the liturgical day higher priority over another coinciding liturgical day even though that liturgical day has a higher-ranking type. This flag should be used with caution.</li>
+<li><code>liturgicalColors</code>: The <a href="#liturgical-colors">liturgical color(s)</a> assigned for this liturgical day (usually follows the liturgical season but may defer if this liturgical day is a solemnity, feast or memorial)</li>
+<li><code>seasons</code>: Required: An array of string that identifies the liturgical season this liturgical day belongs to</li>
+<li><code>seasonNames</code>: Required: An array of localized string that identifies the liturgical season this liturgical day belongs to</li>
+<li><code>periods</code>: Required: An array of string that identifies the liturgical period this liturgical day belongs to</li>
+<li><code>cycles</code>: The <a href="#cycles">liturgical cycle</a> metadata of the liturgical day</li>
+<li><code>calendar</code>: The liturgical calendar metadata of the liturgical day</li>
+<li><code>fromCalendar</code>: The name of the calendar from which this liturgical day is defined</li>
+<li><code>fromExtendedCalendars</code>: The names and the object diff of the calendar(s) from which this liturgical day is extended.</li>
+<li><code>metadata</code>: An object that holds additional information about the liturgical day, especially when it refers to a liturgical day coming from the Sanctoral or Martyrology.<ul>
+<li><code>titles</code>: An array of <a href="#titles">titles</a> that may be assigned to this liturgical day</li>
+</ul>
+</li>
+</ul>
+<h2 id="liturgical-day-ranks">Liturgical Day Ranks</h2>
+<p>Each date in the liturgical calendar is assigned a rank which are:</p>
+<ol>
+<li><code>SOLEMNITY</code></li>
+<li><code>SUNDAY</code></li>
+<li><code>TRIDUUM</code></li>
+<li><code>HOLY_WEEK</code></li>
+<li><code>FEAST</code></li>
+<li><code>MEMORIAL</code></li>
+<li><code>OPT_MEMORIAL</code></li>
+<li><code>COMMEMORATION</code></li>
+<li><code>WEEKDAY</code></li>
+</ol>
+<p>Where the importance or rank of the liturgical day is in descending order (solemnity being of highest importance and weekday being the lowest).</p>
+<p>Ranks play an important role in determining which liturgical day should take precedence over another when two or more liturgical days coincide on the same date. Certain liturgical day ranks will also have different liturgical colors applied to them.</p>
+<p>The array of types can be imported into consumer apps via:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { Types } <span class="hljs-keyword">from</span> <span class="hljs-string">'romcal'</span>;
+</code></pre>
+<h2 id="celebration-titles">Celebration Titles</h2>
+<p>On top of having a liturgical day rank, days may also have one or more titles of significance assigned to it.</p>
+<p>For example, the feast of <a href="https://en.wikipedia.org/wiki/Catherine_of_Siena">Saint Catherine of Siena</a> is assigned the titles <code>PATRON_OF_EUROPE</code> (for national calendars of countries in Europe only) and <code>DOCTOR_OF_THE_CHURCH</code> due to those titles being conferred on her by the Church.</p>
+<p>Titles are currently available for:</p>
+<ul>
+<li><code>PATRON_OF_EUROPE</code></li>
+<li><code>FEAST_OF_THE_LORD</code></li>
+<li><code>DOCTOR_OF_THE_CHURCH</code></li>
+<li><code>MARIAN_FEAST</code></li>
+<li><code>TRIDUUM</code></li>
+<li><code>MARTYR</code></li>
+</ul>
+<p>The titles object can be imported into consumer apps via:</p>
+<p><em>ES6</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { Titles } <span class="hljs-keyword">from</span> <span class="hljs-string">'romcal'</span>;
+</code></pre>
+<p><em>CommonJS</em></p>
+<pre><code class="lang-javascript"><span class="hljs-attribute">var Titles</span> = require(<span class="hljs-string">'romcal'</span>).Titles;
+</code></pre>
+<h2 id="liturgical-seasons">Liturgical Seasons</h2>
+<p>The liturgical calendar is divided into various seasons that occur throughout the liturgical year.</p>
+<ul>
+<li><code>ADVENT</code></li>
+<li><code>CHRISTMASTIDE</code></li>
+<li><code>ORDINARY_TIME</code></li>
+<li><code>LENT</code></li>
+<li><code>PASCHAL_TRIDUUM</code></li>
+<li><code>EASTERTIDE</code></li>
+</ul>
+<p>romcal assigns seasons to the dates it generates to indicate the season to which the range of dates generated belong.</p>
+<p>For each day, the keys of the seasons are outputted in an array, because the season change can occur during the day (so a day can be within 2 seasons).
+This is the case on Holy Thursday and Easter Sunday:</p>
+<ul>
+<li>The season of Lent run up to but excluding the evening Mass of the Lord’s Supper (on Holy Thursday)</li>
+<li>The Paschal Triduum begins with the evening Mass of the Lord’s Supper, and closes with Vespers of the Sunday of the Resurrection (Easter Sunday).</li>
+<li>The Easter Time start from the Sunday of the Resurrection (Easter Sunday).</li>
+</ul>
+<p>The LITURGICAL_SEASONS object can be imported into consumer apps via:</p>
+<p><em>ES6</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { LITURGICAL_SEASONS } <span class="hljs-keyword">from</span> <span class="hljs-string">'romcal'</span>;
+</code></pre>
+<p><em>CommonJS</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> LITURGICAL_SEASONS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'romcal'</span>).LITURGICAL_SEASONS;
+</code></pre>
+<h2 id="liturgical-periods">Liturgical Periods</h2>
+<p>In addition to seasons, romcal give information about periods for each date.</p>
+<p>Available liturgical periods:</p>
+<ul>
+<li><code>CHRISTMAS_OCTAVE</code></li>
+<li><code>HOLY_WEEK</code></li>
+<li><code>EASTER_OCTAVE</code></li>
+</ul>
+<p>Other periods (non-official), some of which are from the tradition of the church (often still used in monastic liturgies), for convenient usage only:</p>
+<ul>
+<li><code>DAYS_BEFORE_EPIPHANY</code></li>
+<li><code>DAYS_AFTER_EPIPHANY</code></li>
+<li><code>CHRISTMAS_TO_PRESENTATION_OF_THE_LORD</code></li>
+<li><code>PRESENTATION_OF_THE_LORD_TO_HOLY_THURSDAY</code></li>
+<li><code>EARLY_ORDINARY_TIME</code></li>
+<li><code>LATE_ORDINARY_TIME</code></li>
+</ul>
+<p>The LITURGICAL_PERIODS object can be imported into consumer apps via:</p>
+<p><em>ES6</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { LITURGICAL_PERIODS } <span class="hljs-keyword">from</span> <span class="hljs-string">'romcal'</span>;
+</code></pre>
+<p><em>CommonJS</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> LITURGICAL_PERIODS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'romcal'</span>).LITURGICAL_PERIODS;
+</code></pre>
+<h2 id="liturgical-cycles-years-and-weeks-a-name-cycles-a-">Liturgical Cycles: Years and Weeks <a name="cycles"></a></h2>
+<p>Romcal automatically calculates the correct cycles for the given liturgical date.
+Cycle information can be read via the <code>dates[idx].cycles</code> property in each date element in the array that <code>calendarFor</code> returns:</p>
+<pre><code class="lang-typescript">{
+  <span class="hljs-attribute">liturgicalDayCycle</span>: <span class="hljs-string">'TEMPORALE'</span> | <span class="hljs-string">'SANCTORALE'</span>;
+  <span class="hljs-attribute">sundayCycle</span>: <span class="hljs-string">'YEAR_A'</span> | <span class="hljs-string">'YEAR_B'</span> | <span class="hljs-string">'YEAR_C'</span>;
+  <span class="hljs-attribute">weekdayCycle</span>: <span class="hljs-string">'YEAR_1'</span> | <span class="hljs-string">'YEAR_2'</span>;
+  <span class="hljs-attribute">psalterWeek</span>: <span class="hljs-string">'WEEK_1'</span> | <span class="hljs-string">'WEEK_2'</span> | <span class="hljs-string">'WEEK_3'</span> | <span class="hljs-string">'WEEK_4'</span>;
+}
+</code></pre>
+<h3 id="liturgical-day-cycle">Liturgical Day Cycle</h3>
+<p>All liturgical days are taken from one of these two liturgical cycles:</p>
+<ul>
+<li><code>Temporale</code> denoted by the key <code>TEMPORALE</code></li>
+<li><code>Sanctorale</code> denoted by the key <code>SANCTORALE</code></li>
+</ul>
+<p>The <a href="https://en.wikipedia.org/wiki/Temporale"><strong>Temporale</strong></a> (or the <strong>proper of time</strong>, or the <strong>proper of seasons</strong>)
+consists of the <a href="https://en.wikipedia.org/wiki/Moveable_feast">movable feasts</a> and liturgical days, most of them keyed to Easter (which falls on a different Sunday every year),
+including Sundays and Weekdays and liturgical days like Ascension, Pentecost, and so on.
+It&#39;s a cycle that traces the earthly life and the mystery of the Christ, and is deeply related to the liturgical seasons&#39; continuity.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Sanctorale"><strong>sanctorale</strong></a> (or the <strong>proper of saints</strong>) consists of the fixed liturgical days (on the civil year), celebrated on the very same date each year (no matter what the day of the week).
+It mainly contains the celebrations of the saints, and some other liturgical days for the mystery of the church, including Christmas.</p>
+<h3 id="sunday-cycle">Sunday Cycle</h3>
+<p>A liturgical year consists of cycles that determines which portions of scripture are to be read.
+The Sunday cycle is used mainly for Sunday readings and some solemnity.</p>
+<ul>
+<li><code>Year A</code> denoted by the key <code>YEAR_A</code></li>
+<li><code>Year B</code> denoted by the key <code>YEAR_B</code></li>
+<li><code>Year C</code> denoted by the key <code>YEAR_C</code></li>
+</ul>
+<h3 id="weekday-cycle">Weekday Cycle</h3>
+<p>A liturgical year consists of cycles that determines which portions of scripture are to be read.
+The weekday cycle is used mainly for weekday readings.</p>
+<ul>
+<li><code>Year 1</code> or <code>Odd year</code> denoted by the key <code>YEAR_1</code></li>
+<li><code>Year 2</code> or <code>Even year</code> denoted by the key <code>YEAR_2</code></li>
+</ul>
+<h3 id="psalter-weeks">Psalter Weeks</h3>
+<p>Inside every liturgical year, another psalter week cycle will determine which psalms and prayer to follow for the liturgy of hours.</p>
+<p>With the exception of the Easter Octave, each week in the liturgical year is assigned readings from the <a href="https://en.wikipedia.org/wiki/Roman_Breviary#The_Psalter">Psalter</a>.
+The psalter week cycle is composed of a repeated sequence of 4 four weeks. It restarts at the beginning of each season.
+There are also some rules that govern the set of Psalter readings used on particular occasions or seasons of the year.</p>
+<p>For convenient usage, romcal provides the psalter week number for all seasons:</p>
+<ul>
+<li><code>Week I</code> denoted by the key <code>WEEK_1</code></li>
+<li><code>Week II</code> denoted by the key <code>WEEK_2</code></li>
+<li><code>Week III</code> denoted by the key <code>WEEK_3</code></li>
+<li><code>Week IV</code> denoted by the key <code>WEEK_4</code></li>
+</ul>
+<hr>
+<p>The cycle objects can be imported into consumer apps via:</p>
+<p><em>ES6</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { LITURGICAL_CYCLES, SUNDAY_CYCLES, WEEKDAY_CYCLES, PSALTER_WEEKS } <span class="hljs-keyword">from</span> <span class="hljs-string">'romcal'</span>;
+</code></pre>
+<p><em>CommonJS</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> LITURGICAL_CYCLES = <span class="hljs-built_in">require</span>(<span class="hljs-string">'romcal'</span>).LITURGICAL_CYCLES;
+<span class="hljs-keyword">var</span> SUNDAY_CYCLES = <span class="hljs-built_in">require</span>(<span class="hljs-string">'romcal'</span>).SUNDAY_CYCLES;
+<span class="hljs-keyword">var</span> WEEKDAY_CYCLES = <span class="hljs-built_in">require</span>(<span class="hljs-string">'romcal'</span>).WEEKDAY_CYCLES;
+<span class="hljs-keyword">var</span> PSALTER_WEEKS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'romcal'</span>).PSALTER_WEEKS;
+</code></pre>
+<h2 id="liturgical-colors">Liturgical Colors</h2>
+<p><a href="https://en.wikipedia.org/wiki/Liturgical_colours">Liturgical colors are those specific colors used for vestments and hangings within the context of Christian liturgy. The symbolism of violet, white, green, red, gold, black, rose and other colors may serve to underline moods appropriate to a season of the liturgical year or may highlight a special occasion.</a></p>
+<p>romcal defines various liturgical colors which are:</p>
+<ul>
+<li><code>BLACK</code></li>
+<li><code>GOLD</code></li>
+<li><code>GREEN</code></li>
+<li><code>PURPLE</code></li>
+<li><code>RED</code></li>
+<li><code>ROSE</code></li>
+<li><code>WHITE</code></li>
+</ul>
+<p>More information on how these colors are used for liturgical day can be found <a href="https://en.wikipedia.org/wiki/Liturgical_colours#Roman_Catholic_Church">here</a></p>
+<p>Liturgical colors can be read via the <code>dates[idx].data.meta.liturgicalColor</code> property in each date element in the array that <code>calendarFor</code> returns.</p>
+<p>The <code>LITURGICAL_COLORS</code> object can be imported into consumer apps via:</p>
+<p><em>ES6</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { LITURGICAL_COLORS } <span class="hljs-keyword">from</span> <span class="hljs-string">'romcal'</span>;
+</code></pre>
+<p><em>CommonJS</em></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> LITURGICAL_COLORS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'romcal'</span>).LITURGICAL_COLORS;
+</code></pre>
+<h2 id="calendar-sources-deprecated-">Calendar sources [deprecated]</h2>
+<p>romcal generates dates that come from 4 different internal sources:</p>
+<ul>
+<li><code>l</code> : liturgical</li>
+<li><code>c</code> : celebrations</li>
+<li><code>g</code> : general</li>
+<li><code>n</code> : national</li>
+</ul>
+<p>Each date is assigned a source with one of the four calendar sources above.</p>
+<p>Calendar sources play an important role in how romcal manages coinciding dates (see <a href="#overidding">overriding dates</a>).</p>
+<h3 id="liturgical">liturgical</h3>
+<p>Represents a standard date in the liturgical year. Dates from this source build the basic structure of the liturgical calendar from the start of the liturgical year to its end.</p>
+<p>Dates from <code>src/lib/Seasons.ts</code> will be assigned the source value <code>l</code>.</p>
+<p>The module responsible for generating the <code>liturgical</code> dates is <code>src/lib/Seasons.ts</code>. <em>It is unlikely that this module will need customization or overriding of any kind.</em></p>
+<h3 id="celebrations">celebrations</h3>
+<p>Represents central celebrations observed in the Roman Catholic rite. They take precedence and will replace coinciding dates from the <code>liturgical</code> calendar or <code>general</code> calendar.</p>
+<p>Dates from <code>src/lib/Celebrations.ts</code> will be assigned the source value <code>c</code>.</p>
+<p>The module responsible for generating <code>celebrations</code> is <code>src/lib/Celebrations.ts</code>. <em>It is highly unlikely that this module will need customization or overriding of any kind.</em></p>
+<p>A prioritized date defined in the <code>national</code> calendar can replace a date in the <code>celebrations</code> calendar when:</p>
+<ul>
+<li>the key of the <code>national</code> date matches a key in <code>celebrations</code></li>
+<li>the <code>national</code> date is prioritized</li>
+</ul>
+<p><em>In most cases, it is unlikely that a national calendar event will replace a celebration because of the significance of celebrations. If a national event must override a celebration date, it should be properly verified.</em></p>
+<p>The following are a list of dates defined in the <code>celebrations</code> calendar:</p>
+<ul>
+<li>Immaculate Conception</li>
+<li>Christmas</li>
+<li>Mary Mother of God</li>
+<li>Epiphany</li>
+<li>Trinity Sunday</li>
+<li>Corpus Christi</li>
+<li>Sacred Heart of Jesus</li>
+<li>Birth of John the Baptist</li>
+<li>Peter and Paul, Apostles</li>
+<li>Assumption</li>
+<li>All Saints</li>
+<li>Christ the King</li>
+<li>Joseph, Husband of Mary</li>
+<li>Annunciation</li>
+<li>Easter</li>
+<li>Divine Mercy Sunday</li>
+<li>Ascension</li>
+<li>Pentecost Sunday</li>
+<li>Ash Wednesday</li>
+<li>Palm Sunday</li>
+<li>Holy Thursday</li>
+<li>Good Friday</li>
+<li>Holy Saturday</li>
+<li>Holy Family</li>
+<li>Baptism of the Lord</li>
+<li>Presentation of the Lord</li>
+<li>Transfiguration</li>
+<li>Triumph of the Cross</li>
+<li>Immaculate Heart of Mary</li>
+</ul>
+<h3 id="general">general</h3>
+<p>Represents general celebrations throughout the liturgical year. Dates from the <code>general</code> calendar will override those from the <code>liturgical</code> calendar.</p>
+<p>Dates from <code>src/calendars/general.ts</code> are assigned the source value <code>g</code>.</p>
+<p>The module responsible for generating the <code>general</code> dates is <code>src/lib/Calendars/general.ts</code>.</p>
+<p><code>general</code> calendar dates will always be overwritten by <code>celebration</code> or <code>national</code> calendar dates even if they are prioritized. Celebrations in this calendar should reflect the General Roman Calendar, therefore there should be changes only when there is a change in the General Roman Calendar. When one wants to add, remove or modify a celebration that is celebrated only in a national calendar, they should make this changes in that particular calendar, not in the <code>general</code>.</p>
+<p>In situations where a given celebration must override one in the general calendar, define it in the <code>national</code> calendar instead.</p>
+<h3 id="national">national</h3>
+<p>Represents specific liturgical dates that were approved for use by the Holy See for a particular country. It can be used to define unique celebrations celebrated by that particular country or existing celebrations that were <a href="https://en.wikipedia.org/wiki/General_Roman_Calendar#Transfer_of_celebrations">transferred to another date</a>.</p>
+<p>A prioritized celebration in the <code>national</code> calendar takes precedence over celebrations in <code>general</code>, <code>celebrations</code> and <code>liturgical</code> calendars. As such, this marker should be used with caution as it may cause national events to override important celebrations that should not be overridden.</p>
+<p>In situations when there are 2 celebrations from a <code>national</code> calendar that coincide on the same date, the one with the higher-ranking celebration type will take precedence.</p>
+<p>A new <code>national</code> calendar for a country can be defined by creating a new <code>.ts</code> file with the country name in upper case, lower case or camel case in the <code>src/lib/calendars</code> folder (i.e. <code>malaysia.mjs</code>). This new file will automatically be picked up by the module and will be used when the user supplies the matching key in the country argument in the <code>calendarFor</code> method.</p>
+<p>Dates from <code>src/calendars/&lt;countryName&gt;.ts</code> will be assigned the source key <code>n</code></p>
+<p>See <a href="#overridingDates">Overriding dates</a> for more examples.</p>
+</body></html>

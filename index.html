@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>jm-Rom-Cal</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/tabla.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+  <script src="node_modules/romcal/dist/iife/romcal.js"></script>
+  <script src="node_modules/@romcal/calendar.spain/iife/es.js"></script>
+  <script src="node_modules/@romcal/calendar.france/iife/fr.js"></script>
+
+
+
+</head>
+
+<body>
+  <p id="tituloPagina">
+    <img src="favicon.ico" alt="icono" width="50" height="50">
+    Calendario Litúrgico
+  </p>
+
+  <p id="calendario">
+    Fecha: <input id="datepicker" type="button" hidden>
+  </p>
+
+  <p>
+    <span class="menu">Mes</span>
+    <label class="switch">
+      <input id="btnMes" type="checkbox">
+      <span class="slider round"></span>
+    </label>
+    <span class="menu">Ayuda</span>
+    <label class="ayuda">
+      <a href="ayuda1.html" target="_blank">?</a>
+    </label>
+  </p>
+
+  <div id="dia"></div>
+  <div id="mes" hidden></div>
+  <script>
+    $.datepicker.regional['es'] = {
+      closeText: 'Cerrar',
+      prevText: '< Ant',
+      nextText: 'Sig >',
+      currentText: 'Hoy',
+      monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+      monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+      dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+      dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+      weekHeader: 'Sm',
+      dateFormat: 'dd/mm/yy',
+      firstDay: 1,
+      isRTL: false,
+      showMonthAfterYear: false,
+      yearSuffix: '',
+      showOn: "button",
+      buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif",
+      buttonImageOnly: true,
+      onSelect: function (dateString) {
+        createCalendar(dia, mes, dateString);
+      }
+    };
+
+    $.datepicker.setDefaults($.datepicker.regional['es']);
+    $(function () {
+      $("#datepicker").datepicker();
+    });
+
+
+
+    $(document).ready(function () {
+      $("#btnMes").click(function () {
+        $("#mes").toggle();
+      });
+    });
+
+  </script>
+
+  <script>
+    // INSTANCIA
+    const romcal = new Romcal({ localizedCalendar: Spain_Es });
+
+    // Definiciones	
+    romcal.getAllDefinitions().then((calendarDefinitions) => {
+      console.log(
+        'All definitions, which are all possible liturgical days of a specific calendar, that can occur during a whole year:',
+      );
+      console.log(calendarDefinitions);
+    });
+
+
+    // Calendario MENSUAL
+    function createCalendar(elemDia, elemMes, fecha) {
+
+      console.log(fecha);
+
+      let dia = fecha.split('/')[0].padStart(2, "0");
+      let mes = fecha.split('/')[1].padStart(2, "0");
+      let anno = fecha.split('/')[2];
+
+      let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+      let table = '<table class="blueTable"><thead><tr><th>L</th><th>M</th><th>X</th><th>J</th><th>V</th><th>S</th><th>D</th></tr></thead>';
+      table += '<tfoot><tr><td colspan="7">' + meses[parseInt(mes) - 1] + "-" + anno + '</td></tr></tfoot>';
+
+      romcal.generateCalendar(anno).then((myCalendar) => {
+        console.log(myCalendar);
+        let mon = mes - 1;// months in JS are 0..11, not 1..12
+        let d = new Date(anno, mon);
+        table += '<tbody><tr>';
+        // spaces for the first row
+        // from Monday till the first day of the month
+        // * * * 1  2  3  4
+        for (let i = 0; i < getDay(d); i++) {
+          table += '<td></td>';
+        }
+
+        while (d.getMonth() == mon) {
+          //let fecha = year.value + "-" + (mon + 1).toString().padStart(2,"0") + "-" + d.getDate().toString().padStart(2,'0');
+          let fechaCal = anno + "-" + mes + "-" + d.getDate().toString().padStart(2, '0');
+          table += '<td><span class="diaMes">' + d.getDate() + '</span><br/>';
+          // Anexar datos. Algunos son arrays (o)  
+          table += myCalendar[fechaCal][0]["name"] + '</br>';
+          table += myCalendar[fechaCal][0]["key"] + '(1ª CLAVE)' + '</br>';
+          table += myCalendar[fechaCal][0]["rank"] + '</br>';
+          table += myCalendar[fechaCal][0]["colorNames"][0] + '</br>';  // (ARRAY) Solo el primer color
+
+          table += '</td>';
+          if (getDay(d) % 7 == 6) { // sunday, last day of week - newline
+            table += '</tr><tr>';
+          }
+
+          d.setDate(d.getDate() + 1);
+
+        }
+
+        // add spaces after last days of month for the last row
+        // 29 30 31 * * * *
+        if (getDay(d) != 0) {
+          for (let i = getDay(d); i < 7; i++) {
+            table += '<td></td>';
+          }
+          //}
+        }
+        // close the table
+        table += '</tbody></tr></table>';
+
+        elemMes.innerHTML = table;
+
+        str = JSON.stringify(myCalendar[anno + "-" + mes + "-" + dia], undefined, 4);
+        output(syntaxHighlight(str));
+        // Mostrar por consola el objeto JSON del día
+        console.log(d.getDate.toString());
+      });
+    }
+
+    function getDay(date) { // get day number from 0 (monday) to 6 (sunday)
+      let day = date.getDay();
+      if (day == 0) day = 7; // make Sunday (0) the last day
+      return day - 1;
+    }
+
+    function syntaxHighlight(json) {
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'key';
+          } else {
+            cls = 'string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
+        }
+
+        if (match == '"key":') {
+          return '<span class="clavePrincipal">' + match + '</span>';
+        } else {
+          return '<span class="' + cls + '">' + match + '</span>';
+        }
+
+
+      });
+    }
+
+    function output(inp) {
+      // Borrar elementos previos <pre>
+      var element = document.getElementsByTagName("pre"), index;
+      for (index = element.length - 1; index >= 0; index--) {
+        element[index].parentNode.removeChild(element[index]);
+      }
+      //Crear elemento <pre> nuevo
+      document.body.appendChild(document.createElement('pre')).innerHTML = inp.replace(/['"]+/g, '');
+    }
+
+
+  </script>
+</body>
+
+</html>
